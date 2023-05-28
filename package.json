@@ -1,0 +1,21 @@
+{
+  "name": "temantani",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/storage": "^6.10.1",
+    "@hapi/hapi": "^21.3.2",
+    "dotenv": "^16.0.3",
+    "jsonwebtoken": "^9.0.0",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.22",
+    "sequelize": "^6.31.1"
+  }
+}
