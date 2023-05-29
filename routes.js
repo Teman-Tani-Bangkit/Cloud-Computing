@@ -1,4 +1,4 @@
-const { register, login, uploadProduk, tampilkanProduk, tampilkanKategori } = require("./handler");
+const { register, login, uploadProduk, tampilkanProduk, tampilkanKategori, postProfil } = require("./handler");
 const routes = [
   {
     method: "POST",
@@ -13,6 +13,15 @@ const routes = [
   {
     method: "POST",
     path: "/uploadProduk",
+    options: {
+      payload: {
+        parse: true,
+        multipart: {
+          output: "stream",
+        },
+        maxBytes: 1000 * 1000 * 5,
+      },
+    },
     handler: uploadProduk,
   },
   {
@@ -24,6 +33,20 @@ const routes = [
     method: "GET",
     path: "/tampilkanKategori",
     handler: tampilkanKategori,
+  },
+  {
+    method: "POST",
+    path: "/postProfil",
+    handler: postProfil,
+    options: {
+      payload: {
+        parse: true,
+        multipart: {
+          output: "stream",
+        },
+        maxBytes: 1000 * 1000 * 5,
+      },
+    },
   },
 ];
 
