@@ -51,16 +51,16 @@ const register = async function (request, h) {
 const login = async function (request, h) {
   try {
     const { email, password } = request.payload;
-    const [result] = await con.query('SELECT id_user,nama From users WHERE email = "' + email + '" and password = "' + password + '" ');
+    const [result] = await con.query('SELECT userid, nama From users WHERE email = "' + email + '" and password = "' + password + '" ');
     if (result.length > 0) {
-      let id_user = result[0].id_user;
+      let userid = result[0].userid;
       let nama = result[0].nama;
-      const accessToken = jwt.sign(id_user, process.env.KEY);
+      const accessToken = jwt.sign(userid, process.env.KEY);
       const response = h.response({
         status: "success",
         message: "berhasil melakukan login",
         data: {
-          userid: id_user,
+          userid: userid,
           nama: nama,
           token: accessToken,
         },
@@ -89,7 +89,7 @@ const login = async function (request, h) {
 //Post profil user
 const postProfil = async function (request, h) {
   try {
-    const { id_user, nama, email, notelepon, password, foto } = request.payload;
+    const { userid, nama, email, notelepon, password, foto } = request.payload;
     let [update, metadata] = [];
     if (request.payload.hasOwnProperty("foto")) {
       const gc = new Storage({
@@ -99,7 +99,7 @@ const postProfil = async function (request, h) {
 
       const temantaniBucket = gc.bucket("temantani-bucket");
       let ext = foto.hapi.filename.split(".").pop();
-      let namafoto = id_user + "_" + nama + "." + ext;
+      let namafoto = userid + "_" + nama + "." + ext;
 
       const blob = await foto.pipe(
         temantaniBucket.file("profile/" + namafoto).createWriteStream({
@@ -107,9 +107,9 @@ const postProfil = async function (request, h) {
         })
       );
 
-      [update, metadata] = await con.query('UPDATE users SET nama="' + nama + '",email="' + email + '",notelepon="' + notelepon + '",password="' + password + '",foto="' + namafoto + '" WHERE id_user=' + id_user + "");
+      [update, metadata] = await con.query('UPDATE users SET nama="' + nama + '",email="' + email + '",notelepon="' + notelepon + '",password="' + password + '",foto="' + namafoto + '" WHERE userid=' + userid + "");
     } else {
-      [update, metadata] = await con.query('UPDATE users SET nama="' + nama + '",email="' + email + '",notelepon="' + notelepon + '",password="' + password + '" WHERE id_user=' + id_user + "");
+      [update, metadata] = await con.query('UPDATE users SET nama="' + nama + '",email="' + email + '",notelepon="' + notelepon + '",password="' + password + '" WHERE userid=' + userid + "");
     }
 
     if (metadata !== 1) {
@@ -138,12 +138,12 @@ const postProfil = async function (request, h) {
   }
 };
 
-//Tambah Barang
+//Tambah barang
 const uploadProduk = async function (request, h) {
   try {
-    const { gambarBarang, namaBarang, harga, kategori, deskripsi } = request.payload;
+    const { gambarbarang, namabarang, harga, kategori, deskripsi } = request.payload;
     let [metadata] = [];
-    if (request.payload.hasOwnProperty("gambarBarang")) {
+    if (request.payload.hasOwnProperty("gambarbarang")) {
       console.log("123");
       const gc = new Storage({
         keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
@@ -151,17 +151,17 @@ const uploadProduk = async function (request, h) {
       });
 
       const temantaniBucket = gc.bucket("temantani-bucket");
-      let ext = gambarBarang.hapi.filename.split(".").pop();
-      let namaGambar = namaBarang + "." + ext;
+      let ext = gambarbarang.hapi.filename.split(".").pop();
+      let namagambar = namabarang + "." + ext;
 
-      const blob = await gambarBarang.pipe(
-        temantaniBucket.file("Barang/" + namaGambar).createWriteStream({
+      const blob = await gambarbarang.pipe(
+        temantaniBucket.file("barang/" + namagambar).createWriteStream({
           resumable: false,
         })
       );
 
       console.log("456");
-      const [resInsert, metadata] = await con.query('INSERT INTO `produk`(`gambarBarang`, `namaBarang`, `harga`, `kategori`, `deskripsi`) VALUES ("' + namaGambar + '","' + namaBarang + '","' + harga + '","' + kategori + '","' + deskripsi + '")');
+      const [resInsert, metadata] = await con.query('INSERT INTO `produk`(`gambarbarang`, `namabarang`, `harga`, `kategori`, `deskripsi`) VALUES ("' + namagambar + '","' + namabarang + '","' + harga + '","' + kategori + '","' + deskripsi + '")');
     }
     if (metadata !== 1) {
       const response = h.response({
@@ -189,7 +189,7 @@ const uploadProduk = async function (request, h) {
   }
 };
 
-//View All Barang
+//View All barang
 const tampilkanProduk = async function (request, h) {
   try {
     const [result] = await con.query("SELECT * FROM produk");
@@ -221,7 +221,7 @@ const tampilkanProduk = async function (request, h) {
   }
 };
 
-//Tampil Barang By Kategori
+//Tampil barang By Kategori
 const tampilkanKategori = async function (request, h) {
   try {
     const { kategori } = request.query;
