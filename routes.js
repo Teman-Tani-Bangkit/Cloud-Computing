@@ -1,4 +1,4 @@
-const { register, login, uploadProduk, tampilkanProduk, tampilkanKategori, postProfil } = require("./handler");
+const { register, login, uploadProduk, tampilkanProduk, tampilkanKategori, postProfil, verifauth } = require("./handler");
 const routes = [
   {
     method: "POST",
@@ -14,6 +14,9 @@ const routes = [
     method: "POST",
     path: "/uploadProduk",
     options: {
+      ext: {
+        onPreAuth: { method: verifauth }
+      },
       payload: {
         parse: true,
         multipart: {
@@ -25,20 +28,34 @@ const routes = [
     handler: uploadProduk,
   },
   {
+    config: {
+      ext: {
+          onPreAuth: { method: verifauth }
+      }
+    },
     method: "GET",
     path: "/tampilkanProduk",
     handler: tampilkanProduk,
   },
   {
+    config: {
+      ext: {
+          onPreAuth: { method: verifauth }
+      }
+    },
     method: "GET",
     path: "/tampilkanKategori",
     handler: tampilkanKategori,
+    
   },
   {
-    method: "POST",
+    method: "PUT",
     path: "/postProfil",
     handler: postProfil,
     options: {
+      ext: {
+        onPreAuth: { method: verifauth }
+      },
       payload: {
         parse: true,
         multipart: {

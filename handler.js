@@ -86,10 +86,25 @@ const login = async function (request, h) {
   }
 };
 
+const verifauth = async function(request,reply){
+  const {key} = request.headers;
+  let valid = false;
+  if(key == null) return reply.response(401)
+  jwt.verify(key,process.env.KEY, (err,isValid)=>{
+      
+      if(isValid){
+          // return reply.continue;
+          valid = true;
+      }
+  });
+  if(valid) return reply.continue;
+  else return reply.response(403);
+};
+
 //Post profil user
 const postProfil = async function (request, h) {
   try {
-    const { userid, nama, email, notelepon, password, foto } = request.payload;
+    const {userid, nama, email, notelepon, password, foto } = request.payload;
     let [update, metadata] = [];
     if (request.payload.hasOwnProperty("foto")) {
       const gc = new Storage({
@@ -138,10 +153,12 @@ const postProfil = async function (request, h) {
   }
 };
 
+
 //Tambah barang
 const uploadProduk = async function (request, h) {
   try {
-    const { gambarbarang, namabarang, harga, kategori, deskripsi } = request.payload;
+    // const {userid} = request.param;
+    const {userid, gambarbarang, namabarang, harga, kategori, deskripsi } = request.payload;
     let [metadata] = [];
     if (request.payload.hasOwnProperty("gambarbarang")) {
       console.log("123");
@@ -161,7 +178,7 @@ const uploadProduk = async function (request, h) {
       );
 
       console.log("456");
-      const [resInsert, metadata] = await con.query('INSERT INTO `produk`(`gambarbarang`, `namabarang`, `harga`, `kategori`, `deskripsi`) VALUES ("' + namagambar + '","' + namabarang + '","' + harga + '","' + kategori + '","' + deskripsi + '")');
+      const [resInsert, metadata] = await con.query('INSERT INTO `produks`(`userid`, `gambarbarang`, `namabarang`, `harga`, `kategori`, `deskripsi`) VALUES ("' + userid + '","' + namagambar + '","' + namabarang + '","' + harga + '","'+kategori+'","'+deskripsi+'")');
     }
     if (metadata !== 1) {
       const response = h.response({
@@ -192,7 +209,7 @@ const uploadProduk = async function (request, h) {
 //View All barang
 const tampilkanProduk = async function (request, h) {
   try {
-    const [result] = await con.query("SELECT * FROM produk");
+    const [result] = await con.query("SELECT * FROM produks");
     if (result.length > 0) {
       const response = h.response({
         status: "success",
@@ -225,7 +242,7 @@ const tampilkanProduk = async function (request, h) {
 const tampilkanKategori = async function (request, h) {
   try {
     const { kategori } = request.query;
-    const [result] = await con.query('SELECT * FROM produk WHERE kategori = "' + kategori + '"');
+    const [result] = await con.query('SELECT * FROM produks WHERE kategori = "' + kategori + '"');
     if (result.length > 0) {
       const response = h.response({
         status: "success",
@@ -257,6 +274,7 @@ const tampilkanKategori = async function (request, h) {
 module.exports = {
   register,
   login,
+  verifauth,
   uploadProduk,
   tampilkanProduk,
   tampilkanKategori,
