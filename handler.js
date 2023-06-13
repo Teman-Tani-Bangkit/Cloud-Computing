@@ -1,8 +1,7 @@
 const con = require("./connection");
 const jwt = require("jsonwebtoken");
-const Joi = require("joi");
 const { Storage } = require("@google-cloud/storage");
-
+const axios = require('axios');
 // const bcrypt = require("bcrypt");
 
 //Registrasi
@@ -161,7 +160,7 @@ const uploadProduk = async function (request, h) {
     const {userid, gambarbarang, namabarang, harga, kategori, deskripsi } = request.payload;
     let [metadata] = [];
     if (request.payload.hasOwnProperty("gambarbarang")) {
-      console.log("123");
+      // console.log("123");
       const gc = new Storage({
         keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
         projectId: "temantani-388216",
@@ -177,7 +176,7 @@ const uploadProduk = async function (request, h) {
         })
       );
 
-      console.log("456");
+      // console.log("456");
       const [resInsert, metadata] = await con.query('INSERT INTO `produks`(`userid`, `gambarbarang`, `namabarang`, `harga`, `kategori`, `deskripsi`) VALUES ("' + userid + '","' + namagambar + '","' + namabarang + '","' + harga + '","'+kategori+'","'+deskripsi+'")');
     }
     if (metadata !== 1) {
@@ -241,7 +240,8 @@ const tampilkanProduk = async function (request, h) {
 //Tampil barang By Kategori
 const tampilkanKategori = async function (request, h) {
   try {
-    const { kategori } = request.query;
+    console.log(request.params);
+    const {kategori} = request.params;
     const [result] = await con.query('SELECT * FROM produks WHERE kategori = "' + kategori + '"');
     if (result.length > 0) {
       const response = h.response({
@@ -271,6 +271,88 @@ const tampilkanKategori = async function (request, h) {
   }
 };
 
+
+const penyakit = async function(request,h){
+  try {
+    const {tanaman, gambar} = request.payload;
+    var request = require('request');
+
+    const gc = new Storage({
+      keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      projectId: "temantani-388216",
+    });
+
+    const temantaniBucket = gc.bucket("temantani-bucket");
+    let ext = gambar.hapi.filename.split(".").pop();
+    let namagambar = tanaman + "." + ext;
+
+    const blob = await gambar.pipe(
+      temantaniBucket.file("tanaman/" + namagambar).createWriteStream({
+        resumable: false,
+      })
+    );
+    url = "https://ml-disease-xmyrxrwica-et.a.run.app";
+
+    link = "https://storage.googleapis.com/temantani-bucket/tanaman/"+namagambar;
+
+    // var rp = require('request-promise');
+    console.log('123');
+
+
+    const requestData= {
+      plant : tanaman,
+      link : link
+    };
+    const response = await axios.post("https://ml-disease-xmyrxrwica-et.a.run.app", requestData);
+    const result = response.data;
+
+
+    return result;
+
+    
+
+    
+  } catch (error) {
+    console.log(error);
+    const response = h.response({
+      status: "error",
+      message: "Terjadi masalah dengan koneksi",
+    });
+    response.code(500);
+    return response;
+  }
+};
+
+const rekomendasi = async function (request, h) {
+  try {
+    const { n, p, k, temperature, humidity, ph, rainfall } = request.payload;
+
+    const requestBody = {
+      n: n,
+      p: p,
+      k: k,
+      temperature: temperature,
+      humidity: humidity,
+      ph: ph,
+      rainfall: rainfall,
+    };
+
+    const response = await axios.post("https://ml-recommendation-xmyrxrwica-et.a.run.app/", requestBody);
+    const result = response.data;
+
+    return result;
+  } catch (error) {
+    console.log(error);
+    const response = h
+      .response({
+        status: "error",
+        message: "Terjadi masalah dengan koneksi",
+      })
+      .code(500);
+    return response;
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -279,4 +361,6 @@ module.exports = {
   tampilkanProduk,
   tampilkanKategori,
   postProfil,
+  penyakit,
+  rekomendasi,
 };

@@ -1,4 +1,4 @@
-const { register, login, uploadProduk, tampilkanProduk, tampilkanKategori, postProfil, verifauth } = require("./handler");
+const { rekomendasi,penyakit, register, login, uploadProduk, tampilkanProduk, tampilkanKategori, postProfil, verifauth } = require("./handler");
 const routes = [
   {
     method: "POST",
@@ -44,7 +44,7 @@ const routes = [
       }
     },
     method: "GET",
-    path: "/tampilkanKategori",
+    path: "/tampilkanKategori/{kategori}",
     handler: tampilkanKategori,
     
   },
@@ -64,6 +64,35 @@ const routes = [
         maxBytes: 1000 * 1000 * 5,
       },
     },
+  },
+  {
+    method: "POST",
+    path: "/deteksiPenyakit",
+    options: {
+      ext: {
+        onPreAuth: { method: verifauth }
+      },
+      payload: {
+        parse: true,
+        multipart: {
+          output: "stream",
+        },
+        maxBytes: 1000 * 1000 * 5,
+      },
+    },
+    handler: penyakit,
+  },
+
+  {
+    method: "POST",
+    path: "/rekomendasi",
+    options: {
+      ext: {
+        onPreAuth: { method: verifauth }
+      },
+      
+    },
+    handler: rekomendasi,
   },
 ];
 
