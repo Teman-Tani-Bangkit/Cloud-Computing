@@ -276,11 +276,11 @@ const detailProduk = async function (request, h) {
 const tampilkanProduk = async function (request, h) {
   try {
     const { namabarang } = request.query;
-    var result = [];
+    var result;
     if (namabarang != null) {
-      result = await con.query('SELECT * FROM produks WHERE namabarang LIKE "%' + namabarang + '%"');
+      [result] = await con.query('SELECT * FROM produks WHERE namabarang LIKE "%' + namabarang + '%"');
     } else {
-      result = await con.query("SELECT * FROM produks");
+      [result] = await con.query("SELECT * FROM produks");
     }
 
     if (result.length > 0) {
