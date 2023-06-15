@@ -1,4 +1,4 @@
-const { rekomendasi,penyakit, register, login, uploadProduk, tampilkanProduk, tampilkanKategori, postProfil, verifauth } = require("./handler");
+const { userProfil, detailProduk, rekomendasi, penyakit, register, login, uploadProduk, tampilkanProduk, tampilkanKategori, postProfil, verifauth } = require("./handler");
 const routes = [
   {
     method: "POST",
@@ -15,7 +15,7 @@ const routes = [
     path: "/uploadProduk",
     options: {
       ext: {
-        onPreAuth: { method: verifauth }
+        onPreAuth: { method: verifauth },
       },
       payload: {
         parse: true,
@@ -30,8 +30,18 @@ const routes = [
   {
     config: {
       ext: {
-          onPreAuth: { method: verifauth }
-      }
+        onPreAuth: { method: verifauth },
+      },
+    },
+    method: "GET",
+    path: "/detailProduk/{idbarang}",
+    handler: detailProduk,
+  },
+  {
+    config: {
+      ext: {
+        onPreAuth: { method: verifauth },
+      },
     },
     method: "GET",
     path: "/tampilkanProduk",
@@ -40,13 +50,22 @@ const routes = [
   {
     config: {
       ext: {
-          onPreAuth: { method: verifauth }
-      }
+        onPreAuth: { method: verifauth },
+      },
     },
     method: "GET",
     path: "/tampilkanKategori/{kategori}",
     handler: tampilkanKategori,
-    
+  },
+  {
+    config: {
+      ext: {
+        onPreAuth: { method: verifauth },
+      },
+    },
+    method: "GET",
+    path: "/userProfil/{userid}",
+    handler: userProfil,
   },
   {
     method: "PUT",
@@ -54,7 +73,7 @@ const routes = [
     handler: postProfil,
     options: {
       ext: {
-        onPreAuth: { method: verifauth }
+        onPreAuth: { method: verifauth },
       },
       payload: {
         parse: true,
@@ -70,7 +89,7 @@ const routes = [
     path: "/deteksiPenyakit",
     options: {
       ext: {
-        onPreAuth: { method: verifauth }
+        onPreAuth: { method: verifauth },
       },
       payload: {
         parse: true,
@@ -88,9 +107,8 @@ const routes = [
     path: "/rekomendasi",
     options: {
       ext: {
-        onPreAuth: { method: verifauth }
+        onPreAuth: { method: verifauth },
       },
-      
     },
     handler: rekomendasi,
   },

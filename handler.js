@@ -1,8 +1,9 @@
 const con = require("./connection");
 const jwt = require("jsonwebtoken");
 const { Storage } = require("@google-cloud/storage");
-const axios = require('axios');
-// const bcrypt = require("bcrypt");
+const axios = require("axios");
+const path = require("path");
+const pathKey = path.resolve("serviceaccountkey.json");
 
 //Registrasi
 const register = async function (request, h) {
@@ -85,29 +86,28 @@ const login = async function (request, h) {
   }
 };
 
-const verifauth = async function(request,reply){
-  const {key} = request.headers;
+const verifauth = async function (request, reply) {
+  const { key } = request.headers;
   let valid = false;
-  if(key == null) return reply.response(401)
-  jwt.verify(key,process.env.KEY, (err,isValid)=>{
-      
-      if(isValid){
-          // return reply.continue;
-          valid = true;
-      }
+  if (key == null) return reply.response(401);
+  jwt.verify(key, process.env.KEY, (err, isValid) => {
+    if (isValid) {
+      // return reply.continue;
+      valid = true;
+    }
   });
-  if(valid) return reply.continue;
+  if (valid) return reply.continue;
   else return reply.response(403);
 };
 
 //Post profil user
 const postProfil = async function (request, h) {
   try {
-    const {userid, nama, email, notelepon, password, foto } = request.payload;
+    const { userid, nama, email, notelepon, password, foto } = request.payload;
     let [update, metadata] = [];
     if (request.payload.hasOwnProperty("foto")) {
       const gc = new Storage({
-        keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        keyFilename: pathKey,
         projectId: "temantani-388216",
       });
 
@@ -152,17 +152,52 @@ const postProfil = async function (request, h) {
   }
 };
 
+// userProfil
+const userProfil = async function (request, h) {
+  try {
+    const { userid } = request.params;
+    const [userData] = await con.query('SELECT * FROM users WHERE userid = "' + userid + '"');
+    if (userData.length === 0) {
+      const response = h.response({
+        status: "error",
+        message: "Data pengguna tidak ditemukan",
+        data: null,
+      });
+      response.code(404);
+      return response;
+    }
+
+    const [barangData] = await con.query('SELECT * FROM produks WHERE userid = "' + userid + '"');
+
+    const response = h.response({
+      status: "success",
+      message: "Data profil pengguna berhasil ditemukan",
+      data: {
+        user: userData[0],
+        barang: barangData,
+      },
+    });
+    response.code(200);
+    return response;
+  } catch (error) {
+    console.log(error);
+    const response = h.response({
+      status: "error",
+      message: "Terjadi masalah dengan koneksi",
+    });
+    response.code(500);
+    return response;
+  }
+};
 
 //Tambah barang
 const uploadProduk = async function (request, h) {
   try {
-    // const {userid} = request.param;
-    const {userid, gambarbarang, namabarang, harga, kategori, deskripsi } = request.payload;
+    const { userid, gambarbarang, namabarang, harga, kategori, deskripsi } = request.payload;
     let [metadata] = [];
     if (request.payload.hasOwnProperty("gambarbarang")) {
-      // console.log("123");
       const gc = new Storage({
-        keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        keyFilename: pathKey,
         projectId: "temantani-388216",
       });
 
@@ -176,8 +211,7 @@ const uploadProduk = async function (request, h) {
         })
       );
 
-      // console.log("456");
-      const [resInsert, metadata] = await con.query('INSERT INTO `produks`(`userid`, `gambarbarang`, `namabarang`, `harga`, `kategori`, `deskripsi`) VALUES ("' + userid + '","' + namagambar + '","' + namabarang + '","' + harga + '","'+kategori+'","'+deskripsi+'")');
+      const [resInsert, metadata] = await con.query('INSERT INTO `produks`(`userid`, `gambarbarang`, `namabarang`, `harga`, `kategori`, `deskripsi`) VALUES ("' + userid + '","' + namagambar + '","' + namabarang + '","' + harga + '","' + kategori + '","' + deskripsi + '")');
     }
     if (metadata !== 1) {
       const response = h.response({
@@ -205,10 +239,50 @@ const uploadProduk = async function (request, h) {
   }
 };
 
+// detailProduk
+const detailProduk = async function (request, h) {
+  try {
+    const { idbarang } = request.params;
+    const [result] = await con.query('SELECT users.nama AS nama, users.foto AS foto, users.notelepon AS notelepon, produks.* FROM produks INNER JOIN users ON produks.userid = users.userid WHERE produks.idbarang = "' + idbarang + '"');
+    if (result.length > 0) {
+      const response = h.response({
+        status: "success",
+        message: "Detail produk berhasil ditemukan",
+        data: result[0],
+      });
+      response.code(200);
+      return response;
+    } else {
+      const response = h.response({
+        status: "success",
+        message: "Tidak ada detail produk yang ditemukan",
+        data: null,
+      });
+      response.code(200);
+      return response;
+    }
+  } catch (error) {
+    console.log(error);
+    const response = h.response({
+      status: "error",
+      message: "Terjadi masalah dengan koneksi",
+    });
+    response.code(500);
+    return response;
+  }
+};
+
 //View All barang
 const tampilkanProduk = async function (request, h) {
   try {
-    const [result] = await con.query("SELECT * FROM produks");
+    const { namabarang } = request.query;
+    var result = [];
+    if (namabarang != null) {
+      result = await con.query('SELECT * FROM produks WHERE namabarang LIKE "%' + namabarang + '%"');
+    } else {
+      result = await con.query("SELECT * FROM produks");
+    }
+
     if (result.length > 0) {
       const response = h.response({
         status: "success",
@@ -241,7 +315,7 @@ const tampilkanProduk = async function (request, h) {
 const tampilkanKategori = async function (request, h) {
   try {
     console.log(request.params);
-    const {kategori} = request.params;
+    const { kategori } = request.params;
     const [result] = await con.query('SELECT * FROM produks WHERE kategori = "' + kategori + '"');
     if (result.length > 0) {
       const response = h.response({
@@ -271,14 +345,13 @@ const tampilkanKategori = async function (request, h) {
   }
 };
 
-
-const penyakit = async function(request,h){
+const penyakit = async function (request, h) {
   try {
-    const {tanaman, gambar} = request.payload;
-    var request = require('request');
+    const { tanaman, gambar } = request.payload;
+    var request = require("request");
 
     const gc = new Storage({
-      keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      keyFilename: pathKey,
       projectId: "temantani-388216",
     });
 
@@ -293,25 +366,20 @@ const penyakit = async function(request,h){
     );
     url = "https://ml-disease-xmyrxrwica-et.a.run.app";
 
-    link = "https://storage.googleapis.com/temantani-bucket/tanaman/"+namagambar;
+    link = "https://storage.googleapis.com/temantani-bucket/tanaman/" + namagambar;
 
-    // var rp = require('request-promise');
-    console.log('123');
-
-
-    const requestData= {
-      plant : tanaman,
-      link : link
+    const requestData = {
+      plant: tanaman,
+      link: link,
     };
     const response = await axios.post("https://ml-disease-xmyrxrwica-et.a.run.app", requestData);
     const result = response.data;
+    const namapenyakit = tanaman + "_" + result["result"];
+    const [data] = await con.query('SELECT * FROM disease WHERE nama ="' + namapenyakit + '"');
+    const penyakit = { namapenyakit: result["result"] };
+    data.push(penyakit);
 
-
-    return result;
-
-    
-
-    
+    return data;
   } catch (error) {
     console.log(error);
     const response = h.response({
@@ -350,7 +418,7 @@ const rekomendasi = async function (request, h) {
       })
       .code(500);
     return response;
-  }
+  }
 };
 
 module.exports = {
@@ -358,9 +426,11 @@ module.exports = {
   login,
   verifauth,
   uploadProduk,
+  detailProduk,
   tampilkanProduk,
   tampilkanKategori,
   postProfil,
+  userProfil,
   penyakit,
   rekomendasi,
 };
