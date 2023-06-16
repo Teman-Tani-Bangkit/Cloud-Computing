@@ -372,14 +372,14 @@ const penyakit = async function (request, h) {
       plant: tanaman,
       link: link,
     };
+
     const response = await axios.post("https://ml-disease-xmyrxrwica-et.a.run.app", requestData);
     const result = response.data;
+
     const namapenyakit = tanaman + "_" + result["result"];
     const [data] = await con.query('SELECT * FROM disease WHERE nama ="' + namapenyakit + '"');
-    const penyakit = { namapenyakit: result["result"] };
-    data.push(penyakit);
 
-    return data;
+    return data[0];
   } catch (error) {
     console.log(error);
     const response = h.response({
