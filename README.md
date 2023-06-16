@@ -43,18 +43,18 @@ npm start
 ## API Endpoints
 The TemanTani backend server provides the following API endpoints:
 
-POST /register: Register a new user in the system.
-POST /login: Authenticate a user and obtain an access token upon successful login.
-POST /uploadProduk: Upload a new product to the system.
-GET /detailProduk/{idbarang}: Retrieve product details based on the product ID.
-GET /tampilkanProduk: Display all available products in the system.
-GET /tampilkanProduk?namabarang={namabarang}: Search and display products based on the product name.
-GET /tampilkanKategori/{kategori}: Display products based on a specific category.
-GET /userProfil/{userid}: Display user data that is currently logged in and also products that have been uploaded by that user
-PUT /postProfil: Edit data user
-POST /deteksiPenyakit: Detect plant diseases based on uploaded images.
-POST /rekomendasi: Get plant recommendations based on soil and climate conditions.
-Note: Include a valid access token in each authenticated request by providing the Authorization header with the value Bearer <access-token>.
+POST /register: Register a new user in the system.  
+POST /login: Authenticate a user and obtain an access token upon successful login.  
+POST /uploadProduk: Upload a new product to the system.  
+GET /detailProduk/{idbarang}: Retrieve product details based on the product ID.  
+GET /tampilkanProduk: Display all available products in the system.  
+GET /tampilkanProduk?namabarang={namabarang}: Search and display products based on the product name.  
+GET /tampilkanKategori/{kategori}: Display products based on a specific category.  
+GET /userProfil/{userid}: Display user data that is currently logged in and also products that have been uploaded by that user.  
+PUT /postProfil: Edit data user.  
+POST /deteksiPenyakit: Detect plant diseases based on uploaded images.  
+POST /rekomendasi: Get plant recommendations based on soil and climate conditions.  
+Note: Include a valid access token in each authenticated request by providing the Authorization header with the value Bearer <access-token>.  
   
 ## Deployment
 Deploy API Backend to Google Cloud Run
@@ -75,10 +75,10 @@ gcloud builds submit --tag gcr.io/<project-id>/temantani
 5. Make sure you have created Cloud SQL
 6. Add env and connect to Cloud SQL
 env_variables:
-  DB_HOST: <YOUR_DATABASE_HOST>
-  DB_USER: <YOUR_DATABASE_USER>
-  DB_PASS: <YOUR_DATABASE_PASSWORD>
-  DB_NAME: <YOUR_DATABASE_NAME>
-  DB_PORT: <YOUR_DATABASE_PORT>
-  KEY: <YOUR_PRIVATE_KEY>
+  DB_HOST: <YOUR_DATABASE_HOST>  
+  DB_USER: <YOUR_DATABASE_USER>  
+  DB_PASS: <YOUR_DATABASE_PASSWORD>  
+  DB_NAME: <YOUR_DATABASE_NAME>  
+  DB_PORT: <YOUR_DATABASE_PORT>  
+  KEY: <YOUR_PRIVATE_KEY>  
 7. Deploy.
