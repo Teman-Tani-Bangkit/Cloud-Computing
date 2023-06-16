@@ -72,7 +72,8 @@ cd temantani
 gcloud builds submit --tag gcr.io/<project-id>/temantani
 ```
 4. Configure the Cloud Run settings according to your application.
-5. Add env and connect to Cloud SQL
+5. Make sure you have created Cloud SQL
+6. Add env and connect to Cloud SQL
 env_variables:
   DB_HOST: <YOUR_DATABASE_HOST>
   DB_USER: <YOUR_DATABASE_USER>
@@ -80,4 +81,4 @@ env_variables:
   DB_NAME: <YOUR_DATABASE_NAME>
   DB_PORT: <YOUR_DATABASE_PORT>
   KEY: <YOUR_PRIVATE_KEY>
-6. Deploy.
+7. Deploy.
