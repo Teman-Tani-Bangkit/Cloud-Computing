@@ -28,14 +28,14 @@ cd temantani-backend
 ```bash
 npm install
 ```
-5. Create a file named .env in the project directory and add the necessary configuration. Here's an example:
+5. Create a file named .env in the project directory and add the necessary configuration. Here's an example:  
 ```bash
 KEY=secret-key
 ```
-Replace secret-key with a secure secret key for JWT (JSON Web Token) purposes.
-6. Configure the database connection settings in the connection.js file according to your database setup.
-7. Set up a Google Cloud Storage account to store uploaded images and files. Create a service account key in the Google Cloud Console and save the JSON key file as serviceaccountkey.json in the project directory.
-8. Once the installation is complete, you can run the TemanTani backend with the following command:
+Replace secret-key with a secure secret key for JWT (JSON Web Token) purposes.  
+6. Configure the database connection settings in the connection.js file according to your database setup.  
+7. Set up a Google Cloud Storage account to store uploaded images and files. Create a service account key in the Google Cloud Console and save the JSON key file as serviceaccountkey.json in the project directory.  
+8. Once the installation is complete, you can run the TemanTani backend with the following command:  
 ```bash
 npm start
 ```
@@ -73,8 +73,8 @@ gcloud builds submit --tag gcr.io/<project-id>/temantani
 ```
 4. Configure the Cloud Run settings according to your application.
 5. Make sure you have created Cloud SQL
-6. Add env and connect to Cloud SQL
-env_variables:
+6. Add env and connect to Cloud SQL  
+env_variables:  
   DB_HOST: <YOUR_DATABASE_HOST>  
   DB_USER: <YOUR_DATABASE_USER>  
   DB_PASS: <YOUR_DATABASE_PASSWORD>  
